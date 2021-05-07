@@ -20,10 +20,7 @@ class JobApplication:
         self.location = location
 
 
-def parse_website(job_url):
-    # print(job_url)
-    # try:
-    # jobs.lever.co
+def jobs_lever_co(job_url):
     html = urlopen(job_url)
     soup = BeautifulSoup(html, 'html.parser')
     posting_headline = soup.find(
@@ -51,7 +48,36 @@ def parse_website(job_url):
                    not in stopwords]
     company_name = ' '.join(resultwords)
 
-    job = JobApplication(job_url, title, company_name, location)
+    return JobApplication(job_url, title, company_name, location)
+
+
+def parse_linkedin(job_url):
+    html = urlopen(job_url)
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Job Location
+    span_loc = soup.find(
+        'span', {'class': 'topcard__flavor topcard__flavor--bullet'})
+    location = span_loc.get_text().strip()
+
+    # Company name
+    company_atag = soup.find(
+        'a', {'class': 'topcard__org-name-link topcard__flavor--black-link'})
+    company_name = company_atag.get_text().strip()
+
+    # Job title
+    title = soup.find('h1', {'class': 'topcard__title'}).get_text().strip()
+
+    return JobApplication(job_url, title, company_name, location)
+
+
+def parse_website(job_url):
+    # print(job_url)
+    # try:
+    # jobs.lever.co
+    job = parse_linkedin(job_url)
+    # job = jobs_lever_co(job_url)
+
     print(job.company)
     print(job.title)
     print(job.location)
