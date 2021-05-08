@@ -1,4 +1,5 @@
 import sys
+import json
 from bs4 import BeautifulSoup
 import requests
 import urllib.request
@@ -20,7 +21,7 @@ class JobApplication:
         self.location = location
 
 
-def jobs_lever_co(job_url):
+def parse_jobsleverco(job_url):
     html = urlopen(job_url)
     soup = BeautifulSoup(html, 'html.parser')
     posting_headline = soup.find(
@@ -71,12 +72,58 @@ def parse_linkedin(job_url):
     return JobApplication(job_url, title, company_name, location)
 
 
+def parse_greenhouse(job_url):
+    html = urlopen(job_url)
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Job Location
+    location_loc = soup.find(
+        'div', {'class': 'location'})
+    location = location_loc.get_text().strip()
+
+    # Company name
+    company_loc = soup.find(
+        'span', {'class': 'company-name'})
+    company_name = company_loc.get_text().strip()
+    stopwords = ['at']
+    querywords = company_name.split()
+
+    resultwords = [word for word in querywords if word.lower()
+                   not in stopwords]
+    company_name = ' '.join(resultwords)
+
+    # Job title
+    title = soup.find('h1', {'class': 'app-title'}).get_text().strip()
+
+    return JobApplication(job_url, title, company_name, location)
+
+
+def parse_workday(job_url):
+    while True:
+        title = input("Job title: ")
+        company_name = input("Company name: ")
+        location = input("Location: ")
+        print(f"{title} at {company_name} in {location} ({job_url})")
+
+        res = input('Is this good? (y/n)')
+        if res == '' or not res[0].lower() in ['y', 'n']:
+            print('Please answer with yes or no!')
+        elif res[0].lower() == 'n':
+            continue
+        else:
+            break
+
+    return JobApplication(job_url, title, company_name, location)
+
+
 def parse_website(job_url):
     # print(job_url)
     # try:
     # jobs.lever.co
-    job = parse_linkedin(job_url)
-    # job = jobs_lever_co(job_url)
+    # job = parse_linkedin(job_url)
+    # job = parse_greenhouse(job_url)
+    job = parse_workday(job_url)
+    # job = parse_jobsleverco(job_url)
 
     print(job.company)
     print(job.title)
