@@ -98,7 +98,7 @@ def parse_greenhouse(job_url):
     return JobApplication(job_url, title, company_name, location)
 
 
-def parse_workday(job_url):
+def general_parse(job_url):
     while True:
         title = input("Job title: ")
         company_name = input("Company name: ")
@@ -116,23 +116,41 @@ def parse_workday(job_url):
     return JobApplication(job_url, title, company_name, location)
 
 
-def parse_website(job_url):
+def parse_website(job_url, job):
     # print(job_url)
-    # try:
-    # jobs.lever.co
-    # job = parse_linkedin(job_url)
-    # job = parse_greenhouse(job_url)
-    job = parse_workday(job_url)
-    # job = parse_jobsleverco(job_url)
+    '''
+    known_parsing
+    '''
 
+    known_parsing = [
+        {
+            'name': 'linkedin',
+            'parser': parse_linkedin
+        },
+        {
+            'name': 'greenhouse',
+            'parser': parse_greenhouse
+        },
+        {
+            'name': 'jobs.lever.co',
+            'parser': parse_jobsleverco
+        }
+    ]
+    # general_list = ['workday', 'icims', 'careers', 'gh_jid']
+
+    for known in known_parsing:
+        if known['name'] in job_url and known['name'] == 'linkedin':
+            job = parse_linkedin(job_url)
+        elif known['name'] in job_url and known['name'] == "greenhouse":
+            job = parse_greenhouse(job_url)
+        elif known['name'] in job_url and known['name'] == "jobs.lever.co":
+            job = parse_jobsleverco(job_url)
+
+    # job = general_parse(job_url)
     print(job.company)
     print(job.title)
     print(job.location)
     print(job.url, end='\n\n')
-    # except:
-    #     print("404 error")
-
-    # job = JobApplication(job_url,)
 
 
 if __name__ == "__main__":
@@ -142,4 +160,5 @@ if __name__ == "__main__":
     except:
         print("\tEnter a job url")
     else:
-        parse_website(job_url)
+        job = JobApplication()
+        parse_website(job_url, job)
