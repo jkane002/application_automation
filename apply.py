@@ -1,7 +1,5 @@
 import sys
-import json
 from bs4 import BeautifulSoup
-import requests
 import urllib.request
 from urllib.request import urlopen
 '''
