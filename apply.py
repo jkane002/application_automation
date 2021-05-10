@@ -115,11 +115,10 @@ def general_parse(job_url):
 
 
 def parse_website(job_url, job):
-    # print(job_url)
     '''
-    known_parsing
+    Factory pattern in parsing websites
     '''
-
+    # web scraped these websites
     known_parsing = [
         {
             'name': 'linkedin',
@@ -134,7 +133,9 @@ def parse_website(job_url, job):
             'parser': parse_jobsleverco
         }
     ]
-    # general_list = ['workday', 'icims', 'careers', 'gh_jid']
+
+    # known websites for general parsing
+    general_list = ['workday', 'icims', 'careers', 'gh_jid']
 
     for known in known_parsing:
         if known['name'] in job_url and known['name'] == 'linkedin':
@@ -144,7 +145,10 @@ def parse_website(job_url, job):
         elif known['name'] in job_url and known['name'] == "jobs.lever.co":
             job = parse_jobsleverco(job_url)
 
-    # job = general_parse(job_url)
+    for co in general_list:
+        if co in job_url:
+            job = general_parse(job_url)
+
     print(job.company)
     print(job.title)
     print(job.location)
