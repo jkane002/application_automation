@@ -1,6 +1,9 @@
 # Mac
 .DS_Store
+
+# Other
 .vscode
+creds.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
