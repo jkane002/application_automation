@@ -2,12 +2,14 @@ import sys
 from bs4 import BeautifulSoup
 import urllib.request
 from urllib.request import urlopen
+from datetime import date
+
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 '''
-LinkedIn
-title class="t-24 t-bold" id='ember45'
-company id="ember47"
-location class="jobs-unified-top-card__bullet"
-url
+Automation script that enters the job's title, company, location, and url
+into Google Sheets given a URL
 '''
 
 
@@ -17,6 +19,29 @@ class JobApplication:
         self.title = title
         self.company = company
         self.location = location
+
+    def addRecord(self):
+        '''Enters job onto Google Sheets '''
+
+        # Authorize Google Sheets
+        sheetName = 'Job Search 2021'
+        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+                 "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+
+        creds = ServiceAccountCredentials.from_json_keyfile_name(
+            'creds.json', scope)
+        client = gspread.authorize(creds)
+        sheet = client.open(sheetName).sheet1
+        data = sheet.get_all_records()
+
+        # Enter today's date
+        today = date.today()
+        applied_date = today.strftime("%m/%d/%Y")
+
+        # Insert a new row into Google Sheets
+        newEntry = [self.company, self.title,
+                    self.location, self.url, applied_date]
+        sheet.insert_row(newEntry, 2)
 
 
 def parse_jobsleverco(job_url):
@@ -149,10 +174,28 @@ def parse_website(job_url, job):
         if co in job_url:
             job = general_parse(job_url)
 
-    print(job.company)
-    print(job.title)
-    print(job.location)
-    print(job.url, end='\n\n')
+    if job.title:
+        job.addRecord()
+        print(
+            f"Entered:\n{job.company}\n{job.title}\n{job.location}\n{job.url}\n"
+        )
+    else:
+        '''Link not in known_parsing nor general_list lists'''
+        while True:
+            valid_url = input(f"Valid url at {job_url}? (y/n)")
+            if valid_url == '' or not valid_url[0].lower() in ['y', 'n']:
+                print('Please answer with yes or no!')
+            elif valid_url[0].lower() == 'n':
+                break
+            else:
+				'''
+				Can force inputting wrong entries
+				Honor code when inputting data
+				TODO: have more checks regarding url patterns
+				'''
+                job = general_parse(job_url)
+                job.addRecord()
+                break
 
 
 if __name__ == "__main__":
