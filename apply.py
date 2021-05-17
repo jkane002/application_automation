@@ -43,6 +43,9 @@ class JobApplication:
                     self.location, self.url, applied_date]
         sheet.insert_row(newEntry, 2)
 
+        # Updates date difference formula
+        sheet.update_acell('F2', '=DATEDIF(E2, TODAY(), "D")')
+
 
 def parse_jobsleverco(job_url):
     html = urlopen(job_url)
@@ -188,11 +191,11 @@ def parse_website(job_url, job):
             elif valid_url[0].lower() == 'n':
                 break
             else:
-				'''
-				Can force inputting wrong entries
-				Honor code when inputting data
-				TODO: have more checks regarding url patterns
-				'''
+                '''
+                Can force inputting wrong entries
+                Honor code when inputting data
+                TODO: have more checks regarding url patterns
+                '''
                 job = general_parse(job_url)
                 job.addRecord()
                 break
